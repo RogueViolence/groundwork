@@ -38,6 +38,19 @@ if (typeof document !== "undefined") {
 }
 
 // ─── MODULES ──────────────────────────────────────────────────────────────────
+const EQ_RANKS=[
+  {rank:"E-1",title:"Recruit",track:"enlisted",xpRequired:0,msceit:"Perceiving",description:"Identifying emotion in others"},
+  {rank:"E-2",title:"Specialist",track:"enlisted",xpRequired:500,msceit:"Using",description:"Applying emotion under pressure"},
+  {rank:"E-3",title:"Technician",track:"enlisted",xpRequired:1200,msceit:"Understanding",description:"Reading emotional patterns"},
+  {rank:"E-4",title:"Operator",track:"enlisted",xpRequired:2400,msceit:"Managing",description:"Managing self, reading your team"},
+  {rank:"O-1",title:"Leader",track:"officer",xpRequired:4000,msceit:"Integration",description:"All six ACT processes integrated"},
+  {rank:"O-2",title:"Commander",track:"officer",xpRequired:6500,msceit:"Application",description:"EQ in unit and leadership contexts"},
+  {rank:"O-3",title:"General",track:"officer",xpRequired:10000,msceit:"Systemic",description:"Organizational and cultural influence"},
+  {rank:"O-4",title:"Director",track:"officer",xpRequired:15000,msceit:"Certified",description:"Verified MSCEIT credential"},
+];
+function getRank(xp){let r=EQ_RANKS[0];for(const e of EQ_RANKS){if(xp>=e.xpRequired)r=e;else break;}return r;}
+function getNextRank(xp){for(const e of EQ_RANKS){if(xp<e.xpRequired)return e;}return null;}
+function getRankProgress(xp){const r=getRank(xp);const n=getNextRank(xp);if(!n)return 1;return(xp-r.xpRequired)/(n.xpRequired-r.xpRequired);}
 const MODULES = [
   { id: "values", label: "GROUNDWORK", sublabel: "Values Identification", icon: "◈", tag: "ACT · Values", msceit: "Branch 4", locked: false },
   { id: "present", label: "SECTOR SCAN", sublabel: "Present-Moment Awareness", icon: "◎", tag: "ACT · Contact with Now", msceit: "Branch 1", locked: false },
@@ -940,7 +953,11 @@ function NoiseReductionModule({ onBack }) {
 }
 
 
-function HomeScreen({ onSelect }) {
+function HomeScreen({ onSelect, xp=150, streak=3 }) {
+  const rank=getRank(xp);
+  const nextRank=getNextRank(xp);
+  const progress=getRankProgress(xp);
+  const isOfficer=rank.track==="officer";
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
       <StatusBar barStyle="light-content" />
@@ -951,11 +968,11 @@ function HomeScreen({ onSelect }) {
       </View>
       <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: C.border }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-          <Text style={{ color: C.textMuted, fontSize: 10, letterSpacing: 2 }}>PROGRESSION</Text>
-          <Text style={{ color: C.textMuted, fontSize: 10 }}>XP 150 / 1000</Text>
+          <Text style={{ color: C.textMuted, fontSize: 10, letterSpacing: 2 }}>{nextRank?"NEXT: "+nextRank.rank+" "+nextRank.title.toUpperCase():"MAX RANK"}</Text>
+          <Text style={{ color: C.textMuted, fontSize: 10 }}>{xp} / {nextRank?nextRank.xpRequired:xp} XP</Text>
         </View>
         <View style={{ height: 5, backgroundColor: C.border, borderRadius: 3 }}>
-          <View style={{ width: "15%", height: 5, backgroundColor: C.accent, borderRadius: 3 }} />
+          <View style={{ width: Math.round(progress*100)+"%", height: 6, backgroundColor: C.accent, borderRadius: 3 }} />
         </View>
       </View>
       <ScrollView contentContainerStyle={{ padding: 18, gap: 8 }}>

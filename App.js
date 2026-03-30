@@ -41,7 +41,7 @@ if (typeof document !== "undefined") {
 const MODULES = [
   { id: "values", label: "GROUNDWORK", sublabel: "Values Identification", icon: "◈", tag: "ACT · Values", msceit: "Branch 4", locked: false },
   { id: "present", label: "SECTOR SCAN", sublabel: "Present-Moment Awareness", icon: "◎", tag: "ACT · Contact with Now", msceit: "Branch 1", locked: false },
-  { id: "defusion", label: "NOISE REDUCTION", sublabel: "Cognitive Defusion", icon: "⊘", tag: "ACT · Defusion", msceit: "Branch 2", locked: true },
+  { id: "defusion", label: "NOISE REDUCTION", sublabel: "Cognitive Defusion", icon: "⊘", tag: "ACT · Defusion", msceit: "Branch 2", locked: false },
   { id: "acceptance", label: "HOLD POSITION", sublabel: "Acceptance", icon: "⬡", tag: "ACT · Acceptance", msceit: "Branch 3", locked: true },
   { id: "self", label: "OBSERVER POST", sublabel: "Self-as-Context", icon: "◉", tag: "ACT · Self-as-Context", msceit: "Branch 3", locked: true },
   { id: "action", label: "EXECUTE", sublabel: "Committed Action", icon: "▲", tag: "ACT · Committed Action", msceit: "Branch 4", locked: true },
@@ -689,7 +689,257 @@ function ValuesModule({ onBack }) {
   );
 }
 
-// ─── HOME ─────────────────────────────────────────────────────────────────────
+// ─── NOISE REDUCTION MODULE ──────────────────────────────────────────────────
+const NOISE_QUESTIONS = [
+  {
+    id: "n1", type: "mc",
+    stage: "STAGE 1 — NAME THE NOISE",
+    stageLabel: "Observing · External",
+    sceneSetter: "First day. You just got off the bus at basic. Drill sergeants are everywhere — moving fast, giving instructions, getting in faces. It's controlled chaos and nobody told you the rules.",
+    vignette: "The recruit next to you hasn't moved since he got off the bus. The DS gave a clear instruction thirty seconds ago. Everyone else picked up their gear and moved. He's still standing there, eyes forward, gear at his feet.",
+    prompt: "What's happening with him?",
+    sub: "Look past the position. What's actually going on.",
+    options: [
+      { id: "a", text: "He didn't hear the instruction — too much going on", value: "wrong" },
+      { id: "b", text: "His mind is tracking something louder than the instruction in front of him", value: "correct" },
+      { id: "c", text: "He's taking his time to make sure he does it right", value: "wrong" },
+      { id: "d", text: "He's waiting to see what everyone else does before he moves", value: "also_correct" },
+    ],
+    feedback: {
+      b: "Right. The instruction was clear. His body heard it. But his mind was already three steps ahead — tracking what happens if he does it wrong, what the DS will do, whether everyone is watching. The noise got louder than the signal. He froze when he should have moved.",
+      d: "That works too. He's scanning the environment instead of responding to the actual instruction. His mind is tracking uncertainty — looking for more information before it will let him move. That's noise management that's making the noise louder, not quieter.",
+      default: "Look closer. The instruction was loud and clear. Something else is tracking.",
+    }
+  },
+  {
+    id: "n2", type: "mc",
+    stage: "STAGE 2 — MONITOR THE SIGNAL",
+    stageLabel: "Monitoring · Adjacent",
+    sceneSetter: "It's been a long day. Word gets around there's some downtime. People start to decompress — boots off, someone's on their bunk, the tension in the bay drops for the first time all day.",
+    vignette: "Your bunkmate is standing at the end of his bunk at attention. The DS walked in two minutes ago, unannounced. Your bunkmate's position is correct — eyes forward, hands at his sides. But his hands are shaking slightly. He's doing everything right. Something is off.",
+    prompt: "What is his body telling you that his position isn't?",
+    sub: "Monitor what's underneath the surface.",
+    options: [
+      { id: "a", text: "He's exhausted — his body is giving out after a long day", value: "wrong" },
+      { id: "b", text: "He's angry about being interrupted during downtime", value: "wrong" },
+      { id: "c", text: "His nervous system is already tracking something that hasn't happened yet", value: "correct" },
+      { id: "d", text: "Nothing — hands shake sometimes, it doesn't mean anything", value: "wrong" },
+    ],
+    feedback: {
+      c: "His position is right. His body is giving him away. That shaking isn't about what's happening — it's about what his mind is tracking. He's at attention. His nervous system is already in the conversation with the DS that hasn't started yet. That gap between where his body is and where his mind is — that's the noise.",
+      default: "Monitor more carefully. His position is correct. Something underneath it isn't.",
+    }
+  },
+  {
+    id: "n3", type: "fill",
+    stage: "STAGE 2 — MONITOR THE SIGNAL",
+    stageLabel: "Monitoring · Adjacent",
+    sceneSetter: null,
+    vignette: null,
+    prompt: "Complete this:",
+    template: "His body is in the room. His mind is already ___.",
+    placeholder: "in the conversation with the DS that hasn't happened yet",
+    hint: "Name where his mind actually is.",
+    feedback: "That's the split. Physical presence, mental absence. You just named something most people never notice in themselves — let alone in someone else. That's monitoring."
+  },
+  {
+    id: "n4", type: "fill",
+    stage: "STAGE 3 — CLEAR THE NET",
+    stageLabel: "Observing · Internal",
+    sceneSetter: "Formation was called for 0530. It's 0543. Nobody has shown up yet. The unit is in position. It's quiet.",
+    vignette: "Five minutes in, someone shifts their weight. Then someone else. A cough. Small movements starting to ripple through the formation. Your mind starts tracking. Are we in the right place? Did something change? Is this a test? What happens if someone breaks?\n\nThe movement around you is feeding something in you. Not yours exactly — but you picked it up anyway.",
+    prompt: "What's actually happening — in the formation, and in you?",
+    template: "The formation is tracking ___. My mind picked it up and started monitoring ___. When I step back and observe, what's actually true is ___. What the moment requires right now is ___.",
+    placeholder: "uncertainty, not an actual threat / every possible reason they might be late / nothing has actually gone wrong yet / stillness — I move when there's a reason to move",
+    hint: "Track → Monitor → Observe. Work through it.",
+    feedback: "That restlessness moving through the formation — one mind starts tracking noise, the person next to them picks it up, then the next. Your nervous system doesn't know the difference between your signal and someone else's. The skill is noticing when you've picked up something that isn't yours, observing it for what it is, and choosing your response based on what the moment actually requires. Moving when you should be still is noise. Freezing when you should be moving is noise. Reading the moment clearly — that's the signal."
+  },
+];
+
+function NoiseReductionModule({ onBack }) {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [fillVal, setFillVal] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [distress, setDistress] = useState(false);
+  const [complete, setComplete] = useState(false);
+
+  const q = NOISE_QUESTIONS[step];
+  const DISTRESS_WORDS = ["can't go on", "hopeless", "end it", "no point", "suicide", "hurt myself", "kill myself"];
+  const checkDistress = t => DISTRESS_WORDS.some(w => t.toLowerCase().includes(w));
+
+  const advance = () => {
+    if (step + 1 >= NOISE_QUESTIONS.length) setComplete(true);
+    else { setStep(step + 1); setSelected(null); setShowFeedback(false); setFillVal(""); }
+  };
+
+  const handleChoice = (opt) => {
+    if (selected) return;
+    setSelected(opt.id);
+    setAnswers({ ...answers, [q.id]: opt });
+    setShowFeedback(true);
+  };
+
+  const handleFillSubmit = () => {
+    if (checkDistress(fillVal)) { setDistress(true); return; }
+    setAnswers({ ...answers, [q.id]: fillVal });
+    setShowFeedback(true);
+  };
+
+  const getFeedback = () => {
+    if (!selected) return q.feedback;
+    return q.feedback[selected] || q.feedback.default;
+  };
+
+  if (complete) {
+    return (
+      <View style={{ flex: 1, backgroundColor: C.bg }}>
+        <Header onBack={onBack} title="NOISE REDUCTION" />
+        <ScrollView contentContainerStyle={{ padding: 24, gap: 22 }}>
+          <View>
+            <Text style={{ color: C.accent, fontSize: 11, letterSpacing: 5, marginBottom: 6 }}>MISSION COMPLETE</Text>
+            <Text style={{ color: C.text, fontSize: 34, fontWeight: "bold", lineHeight: 38 }}>NET CLEARED</Text>
+          </View>
+          <Text style={{ color: C.textMuted, fontSize: 15, lineHeight: 24 }}>
+            You just worked through three levels of the same skill — observing noise in a stranger, monitoring it in someone you know, and stepping back to observe it in yourself. That's the progression. That's defusion.
+          </Text>
+          <View style={{ backgroundColor: C.surfaceAlt, borderWidth: 1, borderColor: C.border, borderRadius: 10, padding: 18, gap: 14 }}>
+            <Text style={{ color: C.textMuted, fontSize: 10, letterSpacing: 4 }}>THE THREE MOVES</Text>
+            {[
+              { label: "TRACKING", desc: "Mind locked on noise. Can't respond to the actual signal." },
+              { label: "MONITORING", desc: "Watching the noise from a slight distance. You can see it happening." },
+              { label: "OBSERVING", desc: "Stepped back. Watching your own mind. Choosing your response." },
+            ].map((item, i) => (
+              <View key={i} style={{ flexDirection: "row", gap: 14, alignItems: "flex-start" }}>
+                <View style={{ backgroundColor: C.accentGlow, borderWidth: 1, borderColor: C.accentDim, borderRadius: 4, paddingHorizontal: 10, paddingVertical: 4, marginTop: 2 }}>
+                  <Text style={{ color: C.accent, fontSize: 10, fontWeight: "bold", letterSpacing: 2 }}>{item.label}</Text>
+                </View>
+                <Text style={{ color: C.text, fontSize: 14, lineHeight: 20, flex: 1 }}>{item.desc}</Text>
+              </View>
+            ))}
+          </View>
+          <TouchableOpacity onPress={onBack} style={{ backgroundColor: C.accent, borderRadius: 6, padding: 14, alignItems: "center" }}>
+            <Text style={{ color: "#000", fontWeight: "bold", fontSize: 16, letterSpacing: 4 }}>BACK TO MODULES</Text>
+          </TouchableOpacity>
+          <CrisisFooter />
+        </ScrollView>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: C.bg }}>
+      <StatusBar barStyle="light-content" />
+      <DistressProtocol visible={distress} onDismiss={() => setDistress(false)} />
+      <Header onBack={onBack} title="NOISE REDUCTION" subtitle="Cognitive Defusion · Clear the Net" />
+      <View style={{ height: 3, backgroundColor: C.border }}>
+        <View style={{ height: 3, width: `${(step / NOISE_QUESTIONS.length) * 100}%`, backgroundColor: C.accent, transition: "width 0.4s" }} />
+      </View>
+
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 18 }}>
+        {/* Stage indicator */}
+        <View style={{ gap: 4 }}>
+          <Text style={{ color: C.accent, fontSize: 10, letterSpacing: 5 }}>{q.stage}</Text>
+          <Text style={{ color: C.textDim, fontSize: 11, letterSpacing: 2 }}>{q.stageLabel}</Text>
+        </View>
+
+        {/* Step dots */}
+        <View style={{ flexDirection: "row", gap: 6 }}>
+          {NOISE_QUESTIONS.map((_, i) => (
+            <View key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i <= step ? C.accent : C.border }} />
+          ))}
+        </View>
+
+        {/* Scene setter */}
+        {q.sceneSetter && (
+          <View style={{ backgroundColor: C.surfaceAlt, borderWidth: 1, borderColor: C.border, borderRadius: 8, padding: 14 }}>
+            <Text style={{ color: C.textMuted, fontSize: 10, letterSpacing: 3, marginBottom: 8 }}>SCENE</Text>
+            <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 22, fontStyle: "italic" }}>{q.sceneSetter}</Text>
+          </View>
+        )}
+
+        {/* Vignette */}
+        {q.vignette && (
+          <View style={{ backgroundColor: C.surface, borderWidth: 1, borderColor: C.border, borderRadius: 8, padding: 16, borderLeftWidth: 3, borderLeftColor: C.accent }}>
+            <Text style={{ color: C.text, fontSize: 15, lineHeight: 24 }}>{q.vignette}</Text>
+          </View>
+        )}
+
+        {/* Question */}
+        <View>
+          {q.sub && <Text style={{ color: C.textMuted, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>{q.sub}</Text>}
+          <Text style={{ color: C.text, fontSize: q.type === "fill" ? 22 : 20, fontWeight: "bold", lineHeight: 28 }}>{q.prompt}</Text>
+          {q.type === "fill" && (
+            <Text style={{ color: C.textMuted, fontSize: 15, lineHeight: 24, marginTop: 6 }}>{q.template}</Text>
+          )}
+        </View>
+
+        {/* Multiple choice */}
+        {q.type === "mc" && (
+          <View style={{ gap: 10 }}>
+            {q.options.map(opt => {
+              const isSelected = selected === opt.id;
+              const isCorrect = opt.value === "correct" || opt.value === "also_correct";
+              const showResult = showFeedback;
+              return (
+                <TouchableOpacity key={opt.id} onPress={() => handleChoice(opt)} disabled={!!selected}
+                  style={{
+                    backgroundColor: showResult && isSelected && isCorrect ? "rgba(46,107,79,0.2)" : showResult && isSelected && !isCorrect ? "rgba(139,46,46,0.2)" : C.surfaceAlt,
+                    borderWidth: 1,
+                    borderColor: showResult && isSelected && isCorrect ? C.safe : showResult && isSelected && !isCorrect ? "#8b2e2e" : C.border,
+                    borderRadius: 8, padding: 14, flexDirection: "row", alignItems: "center", gap: 12
+                  }}>
+                  <View style={{ width: 26, height: 26, borderRadius: 13, borderWidth: 1, borderColor: C.border, alignItems: "center", justifyContent: "center" }}>
+                    <Text style={{ color: C.textMuted, fontSize: 11 }}>{opt.id.toUpperCase()}</Text>
+                  </View>
+                  <Text style={{ color: C.text, fontSize: 15, flex: 1 }}>{opt.text}</Text>
+                  {showResult && isSelected && isCorrect && <Text style={{ color: C.safe }}>✓</Text>}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+
+        {/* Fill in the blank */}
+        {q.type === "fill" && !showFeedback && (
+          <View style={{ gap: 10 }}>
+            {q.hint && <Text style={{ color: C.textDim, fontSize: 12, fontStyle: "italic" }}>{q.hint}</Text>}
+            <View style={{ backgroundColor: WITR.bg, borderWidth: 1, borderColor: fillVal.trim() ? WITR.borderFocus : WITR.border, borderRadius: 8, overflow: "hidden" }}>
+              <TextInput value={fillVal} onChangeText={setFillVal} placeholder={q.placeholder} placeholderTextColor={WITR.inkMuted} multiline numberOfLines={4}
+                style={{ padding: 14, color: WITR.ink, fontSize: 15, minHeight: 100, textAlignVertical: "top", lineHeight: 24 }} />
+            </View>
+            <TouchableOpacity onPress={handleFillSubmit} disabled={!fillVal.trim()}
+              style={{ backgroundColor: fillVal.trim() ? C.accent : C.border, borderRadius: 6, padding: 13, alignItems: "center" }}>
+              <Text style={{ color: fillVal.trim() ? "#000" : C.textDim, fontWeight: "bold", fontSize: 16, letterSpacing: 4 }}>SUBMIT</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Feedback */}
+        {showFeedback && (
+          <View style={{ gap: 12 }}>
+            <View style={{ backgroundColor: C.accentGlow, borderWidth: 1, borderColor: C.accentDim, borderRadius: 10, padding: 16 }}>
+              <Text style={{ color: C.text, fontSize: 15, lineHeight: 24 }}>
+                {q.type === "mc" ? getFeedback() : q.feedback}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={advance}
+              style={{ backgroundColor: C.accent, borderRadius: 6, padding: 14, alignItems: "center" }}>
+              <Text style={{ color: "#000", fontWeight: "bold", fontSize: 16, letterSpacing: 4 }}>
+                {step + 1 >= NOISE_QUESTIONS.length ? "COMPLETE" : "NEXT →"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <CrisisFooter />
+      </ScrollView>
+    </View>
+  );
+}
+
+
 function HomeScreen({ onSelect }) {
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
@@ -739,5 +989,6 @@ export default function App() {
   const back = () => { setScreen("home"); setActive(null); };
   if (screen === "home") return <HomeScreen onSelect={go} />;
   if (active?.id === "values") return <ValuesModule onBack={back} />;
+  if (active?.id === "defusion") return <NoiseReductionModule onBack={back} />;
   return <SkeletonModule module={active} onBack={back} />;
 }

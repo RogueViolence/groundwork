@@ -966,13 +966,39 @@ function HomeScreen({ onSelect, xp=150, streak=3 }) {
         <Text style={{ color: C.text, fontSize: 42, fontWeight: "bold", letterSpacing: 2, marginBottom: 4 }}>GROUNDWORK</Text>
         <Text style={{ color: C.textMuted, fontSize: 13 }}>Emotional intelligence. Tactical application.</Text>
       </View>
-      <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: C.border }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-          <Text style={{ color: C.textMuted, fontSize: 10, letterSpacing: 2 }}>{nextRank?"NEXT: "+nextRank.rank+" "+nextRank.title.toUpperCase():"MAX RANK"}</Text>
-          <Text style={{ color: C.textMuted, fontSize: 10 }}>{xp} / {nextRank?nextRank.xpRequired:xp} XP</Text>
+      <View style={{ padding: 16, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: C.border, backgroundColor: C.surface }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 16, marginBottom: 14 }}>
+          <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: C.surfaceAlt, borderWidth: 2, borderColor: isOfficer ? C.accent : C.accentDim, alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ color: C.accent, fontSize: 13, fontWeight: "bold", letterSpacing: 1 }}>{rank.rank}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: C.text, fontSize: 24, fontWeight: "bold", letterSpacing: 2 }}>{rank.title.toUpperCase()}</Text>
+            <Text style={{ color: C.textMuted, fontSize: 11, marginTop: 2 }}>MSCEIT — {rank.msceit}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 }}>
+              <Text style={{ fontSize: 13 }}>🔥</Text>
+              <Text style={{ color: C.accent, fontSize: 11, fontWeight: "bold" }}>{streak} day streak</Text>
+            </View>
+          </View>
         </View>
-        <View style={{ height: 5, backgroundColor: C.border, borderRadius: 3 }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 5 }}>
+          <Text style={{ color: C.textMuted, fontSize: 10, letterSpacing: 2 }}>{nextRank ? "NEXT: "+nextRank.rank+" "+nextRank.title.toUpperCase() : "MAX RANK"}</Text>
+          <Text style={{ color: C.textMuted, fontSize: 10 }}>{xp} / {nextRank ? nextRank.xpRequired : xp} XP</Text>
+        </View>
+        <View style={{ height: 6, backgroundColor: C.border, borderRadius: 3, marginBottom: 14 }}>
           <View style={{ width: Math.round(progress*100)+"%", height: 6, backgroundColor: C.accent, borderRadius: 3 }} />
+        </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          {["E1","E2","E3","E4","O1","O2","O3","O4"].map((r, i) => {
+            const ranks = ["E-1","E-2","E-3","E-4","O-1","O-2","O-3","O-4"];
+            const isCurrent = rank.rank === ranks[i];
+            const isPast = EQ_RANKS.findIndex(x => x.rank === rank.rank) > i;
+            return (
+              <View key={r} style={{ alignItems: "center", gap: 3 }}>
+                <View style={{ width: isCurrent ? 10 : 7, height: isCurrent ? 10 : 7, borderRadius: isCurrent ? 5 : 3.5, backgroundColor: isCurrent ? C.accent : isPast ? C.accentDim : C.border }} />
+                <Text style={{ color: isCurrent ? C.accent : C.textDim, fontSize: 8, letterSpacing: 0.5 }}>{r}</Text>
+              </View>
+            );
+          })}
         </View>
       </View>
       <ScrollView contentContainerStyle={{ padding: 18, gap: 8 }}>
